@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -84,15 +83,12 @@ class _LoginState extends State<Login> {
     }
   }
 
-  //GlobalKeys
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  //auth testing controllers
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  //auth state variables
   String email = '';
   String password = '';
   var _token;
@@ -108,7 +104,6 @@ class _LoginState extends State<Login> {
     }
   }
 
-  //variable to show loading screen if login conditions are met
   bool _isLoading = false;
 
   var userModel;
@@ -279,7 +274,7 @@ class _LoginState extends State<Login> {
                                               context,
                                               new MaterialPageRoute(
                                                   builder: (context) =>
-                                                      Sign_Up()),
+                                                      SignUp()),
                                             );
                                           },
                                           child: Container(
