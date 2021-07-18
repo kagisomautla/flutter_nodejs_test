@@ -33,3 +33,18 @@ connection.connect(function(error){
 });
 
 app.listen(3000, ()=>console.log('CORS-enabled and Express Server is running on localhost:3000'));
+
+//sign_up endpoint
+app.post('/sign_up', function(req, res){
+ 
+    connection.query('INSERT INTO Users(email, password) values(?,?)',[req.body.email, req.body.password], (error, response) =>{
+        if(!error){
+            console.log('Successfully created new account.');
+            res.send('Successfully created new account.');
+        }else{
+            console.log('User already exists.');
+            res.send('User already exists.');
+            throw error;
+        }
+    })
+});
