@@ -48,3 +48,21 @@ app.post('/sign_up', function(req, res){
         }
     })
 });
+
+//sign_in endpoint
+app.post('/login', function(req, res){
+    connection.query('SELECT * FROM Users WHERE email=? AND password=?',[req.body.email, req.body.password], (error, row, fields, response) =>{
+
+        
+        if(!!error){
+            console.log('Failed to sign in');
+            throw error;
+        }else{
+            console.log('Successfully signed in');
+            res.send('Successfully signed in');
+            
+            console.log(req.body);
+        }
+        
+    })
+});
