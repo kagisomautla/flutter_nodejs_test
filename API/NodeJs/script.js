@@ -80,3 +80,17 @@ app.post('/save_weight', function(req, res){
     })
 });
 
+//get_weight endpoint
+app.get('/get_weight/:user_id', function(req, res){
+    connection.query('SELECT * FROM weight WHERE user_id = ? ORDER BY id DESC',[req.params.user_id], function(error, rows, field){
+        if(!error){
+            console.log('Successful query');
+            console.log(rows);
+            res.send(rows);
+        }else{
+            console.log('Error in query');
+            res.send(error);
+        }
+    }); 
+});
+
