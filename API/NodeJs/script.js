@@ -52,7 +52,6 @@ app.post('/sign_up', function(req, res){
 //sign_in endpoint
 app.post('/login', function(req, res){
     connection.query('SELECT * FROM Users WHERE email=? AND password=?',[req.body.email, req.body.password], (error, row, fields, response) =>{
-
         
         if(!!error){
             console.log('Failed to sign in');
@@ -66,3 +65,18 @@ app.post('/login', function(req, res){
         
     })
 });
+
+//save_weight endpoint
+app.post('/save_weight', function(req, res){
+    connection.query('INSERT INTO Weight(weight,created_on,user_id) values(?,?,?)',[req.body.weight, req.body.created_on, req.body.user_id], (error, response) =>{
+        if(!!error){
+            console.log('Failed to save weight');
+            throw error;
+        }else{
+            console.log('Weight successfully saved');
+            res.send('Weight successfully saved');
+        }
+        return response;
+    })
+});
+
