@@ -94,3 +94,18 @@ app.get('/get_weight/:user_id', function(req, res){
     }); 
 });
 
+//delete weight
+app.delete('/delete_weight/:id', function(req, res){
+    connection.query('DELETE FROM Weight WHERE id = ?',[req.params.id], function(error, rows, field){
+    
+        if(!!error){
+            console.log('Failed to delete weight');
+            res.send(error);
+        }else{
+            console.log('Weight with ID: ${[req.params.id]} was successfully deleted.');
+            console.log(rows);
+            res.send('Weight with ID: ${[req.params.id]} was successfully deleted.');
+        }
+    }); 
+});
+
