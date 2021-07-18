@@ -109,3 +109,19 @@ app.delete('/delete_weight/:id', function(req, res){
     }); 
 });
 
+//update_weight
+app.put('/update_weight/:id', function(req, res){
+    connection.query('UPDATE weight SET weight=? WHERE id=?',[req.body.weight,req.params.id], function(error, response, rows, fields){
+
+        if(!error){
+            res.send('Record succesfully updated!');
+            console.log('Record succesfully updated!');
+            console.log(rows);
+            console.log(response.affectedRows + " record(s) updated");
+        }else{
+            console.log('Failed to update record.');
+            res.send(error);
+        }
+    });
+});
+
