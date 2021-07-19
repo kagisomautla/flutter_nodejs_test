@@ -8,6 +8,7 @@ import 'package:weight_checker/model/weight_model.dart';
 
 import '../constants.dart';
 import '../nav_drawer.dart';
+import 'edit_weight.dart';
 
 class History extends StatefulWidget {
   @override
@@ -248,7 +249,34 @@ class _HistoryState extends State<History> {
                                       color: Colors.red,
                                     ),
                                   ),
-                                )
+                                ),
+                                SizedBox(
+                                  width: 20,
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      new MaterialPageRoute(
+                                        builder: (context) => EditWeight(
+                                          weightList[index].getWeightId,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    height: 30,
+                                    width: 30,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.black,
+                                    ),
+                                    child: Icon(
+                                      Icons.edit,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                           ],
