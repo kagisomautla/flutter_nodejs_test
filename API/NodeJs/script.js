@@ -1,6 +1,7 @@
-var mysql = require('mysql');
-var express = require('express');
-var app = express();
+const mysql = require('mysql');
+const express = require('express');
+const app = express();
+const bcrypt = require('bcrypt');
 
 //Enables us to pass json objects
 app.use(express.urlencoded({ extended: false }));
@@ -34,45 +35,74 @@ connection.connect(function(error){
 
 app.listen(3000, ()=>console.log('CORS-enabled and Express Server is running on localhost:3000'));
 
+
 //sign_up endpoint
-app.post('/sign_up', function(req, res){
- 
-    connection.query('INSERT INTO Users(email, password) values(?,?)',[req.body.email, req.body.password], (error, rows, fields, response) =>{
-        if(!error){
-            console.log('Successfully created new account.');
-            res.json({
-                "status": "success",
-                "user_id": rows["insertId"]
-            });
-        }else{
-            console.log('User already exists.');
-            res.json({"status": "failed"});
-            throw error;
-        }
-    })
+app.post('/sign_up', async function(req, res){
+    try {
+        // const password_hash = bcrypt.hashSync(req.body.password, 10);
+        // console.log(password_hash);
+
+        connection.query('INSERT INTO Users(email, password) values(?,?)',[req.body.email, req.body.password], (error, rows) =>{
+            
+            if(error){
+                res.send({ 
+                    "status": "fail",         
+                    "code":400,          
+                    "failed":"error occurred",          
+                    "error" : error,});
+            }else{
+                res.json({
+                    "status": "success",
+                    "user_id": rows["user_id"],
+                    "code":200,          
+                    "success":"user registered sucessfully"
+                });
+            }
+        })
+    } catch (error) {
+        res.status(500).send();
+    }
 });
 
-//sign_in endpoint
-app.post('/login', function(req, res){
-    connection.query('SELECT * FROM Users WHERE email=? AND password=?',[req.body.email, req.body.password], (error, rows, fields, response) =>{
-        
-        if(!!error){
-            console.log('Failed to sign in');
-            res.send({"status": "success"});
-            throw error;
+// sign_in endpoint
+app.post('/login', async function(req, res){  
+    connection.query('SELECT * FROM Users WHERE email=?',[req.body.email], function(error, rows){
+        const loginPassword = req.body.password;
+        if(error){
+            res.send({
+                "success": "fail",
+                "message": "Something went wrong with the query",
+            })
         }else{
-            console.log('Successfully signed in');
-            // res.send({"status": "success"});
-            res.send(rows);
+            if(rows.length != 0){
+                console.log(rows);
+                if(rows[0]["password"] == loginPassword){
+                    res.send({
+                        "status": "success",
+                        "user_id": rows[0]["user_id"],
+                        "code":200,          
+                        "message":"Welcome!"
+                    });
+                } else{
+                    res.json({
+                        "status": "fail",      
+                        "message":"Email and/or password does not match."
+                    });
+                }
+            }else{
+                res.json({
+                    "status": "fail",      
+                    "message":"Account does not exit."
+                });  
+            }
         }
-        
     })
 });
 
 //save_weight endpoint
 app.post('/save_weight', function(req, res){
     connection.query('INSERT INTO Weight(weight,created_on,user_id) values(?,?,?)',[req.body.weight, req.body.created_on, req.body.user_id], (error, response) =>{
-        if(!!error){
+        if(error){
             console.log('Failed to save weight');
             res.send({"status": "fail"});
             throw error;
@@ -119,14 +149,20 @@ app.delete('/delete_weight/:id', function(req, res){
 app.put('/update_weight/:id', function(req, res){
     connection.query('UPDATE weight SET weight=? WHERE id=?',[req.body.weight,req.params.id], function(error, response, rows, fields){
 
-        if(!error){
-            res.send('Record succesfully updated!');
-            console.log('Record succesfully updated!');
-            console.log(rows);
-            console.log(response.affectedRows + " record(s) updated");
+        if(error){
+            console.log('Failed to save weight');
+            res.send({
+                "status": "fail",
+                "code":200,          
+                "message":"Failed to edit weight."
+            });
+            throw error;
         }else{
-            console.log('Failed to update record.');
-            res.send(error);
+            res.send({
+                "status": "success",
+                "code":200,          
+                "message":"Weight edited."
+            });
         }
     });
 });
