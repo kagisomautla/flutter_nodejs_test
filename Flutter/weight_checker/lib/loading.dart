@@ -12,14 +12,6 @@ class Loading extends StatelessWidget {
           child: Column(
             children: <Widget>[
               Container(
-                height: 100,
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                  image: AssetImage('assets/img/logo_black.jpg'),
-                )),
-              ),
-              SizedBox(height: 20),
-              Container(
                 child: SpinKitThreeBounce(
                   size: 25,
                   color: Colors.white,
