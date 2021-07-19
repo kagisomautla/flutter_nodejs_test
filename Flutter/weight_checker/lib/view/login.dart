@@ -16,72 +16,59 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   _showMsg(String msg) {
-    final snackBar = SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(msg),
       duration: Duration(seconds: 5),
       action: SnackBarAction(
         label: '',
         onPressed: () {},
       ),
-    );
-    _scaffoldKey.currentState.showSnackBar(snackBar);
+    ));
   }
 
-  _login() async {
-    setState(() {
-      _isLoading = true;
-    });
+  // _login() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
 
-    try {
-      final String _url = 'login';
-      var user;
-      var userId;
-      var data = {
-        'email': validateEmail(emailController),
-        'password': passwordController.text.trim(),
-      };
+  //   try {
+  //     final String _url = '/login';
+  //     var userId;
+  //     var data = {
+  //       'email': validateEmail(emailController),
+  //       'password': passwordController.text.trim(),
+  //     };
 
-      final response = await Api().postData(data, _url);
-      Map<String, dynamic> body = json.decode(response.body);
-      Map<String, dynamic> address = body['address'];
-      SharedPreferences localStorage = await SharedPreferences.getInstance();
-      localStorage.setString('user', json.encode(body));
-      localStorage.setString('phoneNumber', body['phone']);
-      localStorage.setString('token', body['access_token']);
-      localStorage.setInt('address_id', address['address_id']);
-      print(json.decode(localStorage.getString('user')));
-      final token = localStorage.getString('token');
+  //     final response = await Api().postData(data, _url);
+  //     Map<String, dynamic> body = json.decode(response.body);
+  //     SharedPreferences localStorage = await SharedPreferences.getInstance();
+  //     localStorage.setString('user', json.encode(body));
+  //     localStorage.setInt('userId', body['id']);
 
-      if (token != null) {
-        setState(() {
-          user = json.decode(localStorage.getString('user'));
-          userId = user['user_id'];
-          _token = token;
-        });
-        localStorage.setBool('isLoggedIn', true);
+  //     // final token = localStorage.getString('token');
 
-        Navigator.push(
-          context,
-          new MaterialPageRoute(builder: (context) => Home()),
-        );
-        print('login.dart: {Successful login}');
-      } else {
-        setState(() {
-          _token = null;
-        });
-        _showMsg('Incorrect email and/or password');
-      }
+  //     if (body != null) {
+  //       localStorage.setBool('isLoggedIn', true);
 
-      userModel.setUserID(userId);
+  //       Navigator.push(
+  //         context,
+  //         new MaterialPageRoute(builder: (context) => Home()),
+  //       );
+  //       print('login.dart: {Successful login}');
+  //     } else {
+  //       _showMsg('Incorrect email and/or password');
+  //     }
 
-      setState(() {
-        _isLoading = false;
-      });
-    } catch (e) {
-      print(e.toString());
-      return null;
-    }
-  }
+  //     userModel.setUserID(userId);
+
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //   } catch (e) {
+  //     print(e.toString());
+  //     return null;
+  //   }
+  // }
 
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -107,6 +94,7 @@ class _LoginState extends State<Login> {
   bool _isLoading = false;
 
   var userModel;
+
   @override
   Widget build(BuildContext context) {
     final double screenH = MediaQuery.of(context).size.height;
@@ -223,10 +211,10 @@ class _LoginState extends State<Login> {
                                           Colors.black),
                                 ),
                                 onPressed: () async {
-                                  //Action what should happened when button is clicked
-                                  // if (_formKey.currentState.validate()) {
-                                  //   _login();
-                                  // }
+                                  // Action what should happened when button is clicked
+                                  if (_formKey.currentState.validate()) {
+                                    // _login();
+                                  }
                                   Navigator.popAndPushNamed(
                                       context, '/homepage');
                                 },
