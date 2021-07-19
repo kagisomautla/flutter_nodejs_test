@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weight_checker/model/api_services.dart';
 import 'package:weight_checker/view/home.dart';
 import 'package:weight_checker/view/sign_up.dart';
+import 'package:weight_checker/view/wrapper.dart';
 
 import '../constants.dart';
 import '../loading.dart';
@@ -18,7 +19,7 @@ class _LoginState extends State<Login> {
   _showMsg(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(msg),
-      duration: Duration(seconds: 5),
+      duration: Duration(seconds: 2),
       action: SnackBarAction(
         label: '',
         onPressed: () {},
@@ -26,49 +27,39 @@ class _LoginState extends State<Login> {
     ));
   }
 
-  // _login() async {
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
+  _login() async {
+    setState(() {
+      _isLoading = true;
+    });
 
-  //   try {
-  //     final String _url = '/login';
-  //     var userId;
-  //     var data = {
-  //       'email': validateEmail(emailController),
-  //       'password': passwordController.text.trim(),
-  //     };
+    try {
+      final String _url = '/login';
+      var data = {
+        'email': validateEmail(emailController),
+        'password': passwordController.text.trim(),
+      };
 
-  //     final response = await Api().postData(data, _url);
-  //     Map<String, dynamic> body = json.decode(response.body);
-  //     SharedPreferences localStorage = await SharedPreferences.getInstance();
-  //     localStorage.setString('user', json.encode(body));
-  //     localStorage.setInt('userId', body['id']);
+      final response = await Api().postData(data, _url);
+      Map<String, dynamic> body = json.decode(response.body);
+      SharedPreferences localStorage = await SharedPreferences.getInstance();
+      localStorage.setInt('user_id', body['user_id']);
+      print(body);
 
-  //     // final token = localStorage.getString('token');
+      if (body['status'] != "success") {
+        _showMsg(body["message"]);
+      } else {
+        localStorage.setBool('isSignedIn', true);
 
-  //     if (body != null) {
-  //       localStorage.setBool('isLoggedIn', true);
-
-  //       Navigator.push(
-  //         context,
-  //         new MaterialPageRoute(builder: (context) => Home()),
-  //       );
-  //       print('login.dart: {Successful login}');
-  //     } else {
-  //       _showMsg('Incorrect email and/or password');
-  //     }
-
-  //     userModel.setUserID(userId);
-
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //   } catch (e) {
-  //     print(e.toString());
-  //     return null;
-  //   }
-  // }
+        Navigator.popAndPushNamed(context, '/wrapper');
+      }
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
 
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -131,8 +122,9 @@ class _LoginState extends State<Login> {
                         child: TextFormField(
                           controller: emailController,
                           onChanged: (value) => email = value,
-                          validator: (value) =>
-                              value.isEmpty ? 'Enter a valid email.' : null,
+                          validator: (value) => value.isEmpty
+                              ? _showMsg('Enter a valid email.')
+                              : null,
                           decoration: textInputDecoration.copyWith(
                             focusedBorder: OutlineInputBorder(
                               borderRadius: const BorderRadius.all(
@@ -164,7 +156,8 @@ class _LoginState extends State<Login> {
                           controller: passwordController,
                           obscureText: true,
                           validator: (value) => value.length < 8
-                              ? 'Password must contain at least 8 characters.'
+                              ? _showMsg(
+                                  'Password must contain at least 8 characters.')
                               : null,
                           onChanged: (value) => password = value,
                           decoration: textInputDecoration.copyWith(
@@ -213,10 +206,8 @@ class _LoginState extends State<Login> {
                                 onPressed: () async {
                                   // Action what should happened when button is clicked
                                   if (_formKey.currentState.validate()) {
-                                    // _login();
+                                    _login();
                                   }
-                                  Navigator.popAndPushNamed(
-                                      context, '/homepage');
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.all(5.0),
