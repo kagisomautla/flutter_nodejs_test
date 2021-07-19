@@ -7,10 +7,10 @@ class Api {
         'Application': 'application/json',
       };
 
-  final String _url = "https://127.0.0.1:3000";
+  final String _url = "http://192.168.8.110:3000";
   //post data to server
-  postData(data, apiUrl) async {
-    String _fullApi = _url + apiUrl;
+  postData(data, route) async {
+    String _fullApi = _url + route;
 
     var response = await http.post(
       _fullApi,
@@ -22,8 +22,8 @@ class Api {
   }
 
   //post data to server
-  updateData(data, apiUrl) async {
-    String _fullApi = _url + apiUrl;
+  updateData(data, route) async {
+    String _fullApi = _url + route;
 
     var response = await http.put(
       _fullApi,
@@ -34,9 +34,18 @@ class Api {
   }
 
   //get data from server
-  getData(apiUrl) async {
-    String _fullApi = _url + apiUrl;
+  getData(route) async {
+    String _fullApi = _url + route;
     var response = await http.get(
+      _fullApi,
+      headers: _header(),
+    );
+    return response;
+  }
+
+  deleteData(route) async {
+    String _fullApi = _url + route;
+    var response = await http.delete(
       _fullApi,
       headers: _header(),
     );
