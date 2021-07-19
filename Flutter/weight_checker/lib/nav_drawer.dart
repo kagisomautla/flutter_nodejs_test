@@ -80,8 +80,9 @@ class _NavDrawerState extends State<NavDrawer> {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
     localStorage.setBool('isSignedIn', false);
     localStorage.remove('user_id');
+    localStorage.remove('isSignedIn');
 
-    if (localStorage.getBool('isSignedIn') == false) {
+    if (localStorage.getBool('isSignedIn') == null) {
       Navigator.of(context)
           .pushNamedAndRemoveUntil('/wrapper', (Route<dynamic> route) => false);
     }
