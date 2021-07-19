@@ -44,7 +44,6 @@ class _HomeState extends State<Home> {
       final String _url = '/save_weight';
       SharedPreferences localStorage = await SharedPreferences.getInstance();
       user_id = localStorage.getInt('user_id');
-      print(user_id);
 
       var data = {
         'weight': weight.toString(),
@@ -58,7 +57,7 @@ class _HomeState extends State<Home> {
       if (body['status'] == 'success') {
         _showMsg('New weight added.');
       } else {
-        _showMsg('Could not new weight');
+        _showMsg('Could not add new weight');
       }
 
       setState(() {
@@ -149,10 +148,13 @@ class _HomeState extends State<Home> {
                             setState(() {
                               weight =
                                   double.parse(weightController.text.trim());
+                              weight.toStringAsExponential();
                             });
 
                             if (weight <= 0) {
                               _showMsg('Weight must be greater than 0.');
+                            } else if (weight.runtimeType != double) {
+                              _showMsg('Incorrect format. Enter a number');
                             } else {
                               saveWeight();
                             }
