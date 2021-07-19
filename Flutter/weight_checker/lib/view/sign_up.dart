@@ -6,6 +6,9 @@ import 'package:weight_checker/model/api_services.dart';
 import 'package:weight_checker/view/wrapper.dart';
 import '../constants.dart';
 import '../loading.dart';
+import 'package:http/http.dart' as http;
+
+import 'home.dart';
 
 class SignUp extends StatefulWidget {
   @override
@@ -15,15 +18,14 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   //snackbar
   _showMsg(String msg) {
-    final snackBar = SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(msg),
       duration: Duration(seconds: 5),
       action: SnackBarAction(
         label: '',
         onPressed: () {},
       ),
-    );
-    _scaffoldKey.currentState.showSnackBar(snackBar);
+    ));
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -36,7 +38,6 @@ class _SignUpState extends State<SignUp> {
   String email = '';
   String password = '';
   String confirmPassword = '';
-  String validatedEmail;
 
   var _token;
   bool errorPassword = false;
@@ -48,37 +49,31 @@ class _SignUpState extends State<SignUp> {
     });
 
     try {
-      var token;
-      final String _url = 'signup';
+      final String _url = '/sign_up';
       var data = {
-        'email': validatedEmail,
+        'email': validateEmail(emailController),
         'password': passwordController.text.trim(),
       };
 
       final response = await Api().postData(data, _url);
       Map<String, dynamic> body = json.decode(response.body);
-      var address = body['address'];
+      print(body["status"]);
       SharedPreferences localStorage = await SharedPreferences.getInstance();
-      localStorage.setString('token', json.encode(body['token']));
 
-      if (token != null) {
-        setState(() {
-          _token = token;
-        });
-        localStorage.setBool('isLoggedIn', true);
+      if (body != null) {
+        localStorage.setBool('isSignedIn', true);
+        localStorage.setInt('user_id', body['user_id']);
 
-        // await FlutterSession().set('userToken', _token);
-        Navigator.push(
-          context,
-          new MaterialPageRoute(
-            builder: (context) => Wrapper(),
-          ),
-        );
+        if (body['status'] == "success") {
+          Navigator.push(
+            context,
+            new MaterialPageRoute(builder: (context) => Wrapper()),
+          );
+        } else {
+          _showMsg('User with the same email aready exists.');
+        }
       } else {
-        setState(() {
-          _token = null;
-        });
-        _showMsg('Passwords do not match.');
+        _showMsg('User with the same email aready exists.');
       }
 
       setState(() {
@@ -110,6 +105,7 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
+    // signup("princeruz@gmail.com", "12345678");
     return _token != null
         ? Loading()
         : Scaffold(
@@ -150,8 +146,9 @@ class _SignUpState extends State<SignUp> {
                       TextFormField(
                         controller: emailController,
                         onChanged: (value) => email = value,
-                        validator: (value) =>
-                            value.isEmpty ? 'Enter a valid email' : null,
+                        validator: (value) => value.isEmpty
+                            ? _showMsg('Please enter a valid email')
+                            : null,
                         decoration: textInputDecoration.copyWith(
                           focusedBorder: OutlineInputBorder(
                             borderRadius: const BorderRadius.all(
@@ -182,7 +179,8 @@ class _SignUpState extends State<SignUp> {
                         controller: passwordController,
                         onChanged: (value) => password = value,
                         validator: (value) => value.length < 8
-                            ? 'Password must contain at least 8 characters'
+                            ? _showMsg(
+                                'Password must contain at least 8 characters')
                             : null,
                         decoration: textInputDecoration.copyWith(
                           focusedBorder: OutlineInputBorder(
@@ -245,7 +243,7 @@ class _SignUpState extends State<SignUp> {
                           ? Row(
                               children: [
                                 Text(
-                                  'errorMsg',
+                                  'Passwords do not match.',
                                   style: universalTextStyle.copyWith(
                                     color: Colors.red,
                                     fontSize: 12,
@@ -254,6 +252,9 @@ class _SignUpState extends State<SignUp> {
                               ],
                             )
                           : Text(''),
+                      SizedBox(
+                        height: 25,
+                      ),
                       Container(
                         height: 50,
                         width: double.infinity,
@@ -274,7 +275,12 @@ class _SignUpState extends State<SignUp> {
                                 onPressed: () async {
                                   //Action what should happened when button is clicked
                                   if (_formKey.currentState.validate()) {
-                                    _signUp()();
+                                    if (password != confirmPassword) {
+                                      _showMsg(
+                                          'Passwords do not match. Try again.');
+                                    } else {
+                                      _signUp();
+                                    }
                                   }
                                 },
                                 child: Container(
@@ -334,3 +340,22 @@ class _SignUpState extends State<SignUp> {
           );
   }
 }
+
+// signup(email, password) async {
+//   var url = "http://192.168.8.110:3000/sign_up"; // iOS
+//   final response = await http.post(
+//     url,
+//     headers: <String, String>{
+//       'Content-Type': 'application/json; charset=UTF-8',
+//     },
+//     body: jsonEncode(<String, String>{
+//       'email': email,
+//       'password': password,
+//     }),
+//   );
+//   print(response.body);
+//   SharedPreferences prefs = await SharedPreferences.getInstance();
+//   var parse = jsonDecode(response.body);
+
+//   await prefs.setString('token', parse["token"]);
+// }
