@@ -37,13 +37,16 @@ app.listen(3000, ()=>console.log('CORS-enabled and Express Server is running on 
 //sign_up endpoint
 app.post('/sign_up', function(req, res){
  
-    connection.query('INSERT INTO Users(email, password) values(?,?)',[req.body.email, req.body.password], (error, response) =>{
+    connection.query('INSERT INTO Users(email, password) values(?,?)',[req.body.email, req.body.password], (error, rows, fields, response) =>{
         if(!error){
             console.log('Successfully created new account.');
-            res.send('Successfully created new account.');
+            res.json({
+                "status": "success",
+                "user_id": rows["insertId"]
+            });
         }else{
             console.log('User already exists.');
-            res.send('User already exists.');
+            res.json({"status": "failed"});
             throw error;
         }
     })
@@ -51,16 +54,16 @@ app.post('/sign_up', function(req, res){
 
 //sign_in endpoint
 app.post('/login', function(req, res){
-    connection.query('SELECT * FROM Users WHERE email=? AND password=?',[req.body.email, req.body.password], (error, row, fields, response) =>{
+    connection.query('SELECT * FROM Users WHERE email=? AND password=?',[req.body.email, req.body.password], (error, rows, fields, response) =>{
         
         if(!!error){
             console.log('Failed to sign in');
+            res.send({"status": "success"});
             throw error;
         }else{
             console.log('Successfully signed in');
-            res.send('Successfully signed in');
-            
-            console.log(req.body);
+            // res.send({"status": "success"});
+            res.send(rows);
         }
         
     })
@@ -71,10 +74,11 @@ app.post('/save_weight', function(req, res){
     connection.query('INSERT INTO Weight(weight,created_on,user_id) values(?,?,?)',[req.body.weight, req.body.created_on, req.body.user_id], (error, response) =>{
         if(!!error){
             console.log('Failed to save weight');
+            res.send({"status": "fail"});
             throw error;
         }else{
             console.log('Weight successfully saved');
-            res.send('Weight successfully saved');
+            res.send({"status": "success"});
         }
         return response;
     })
@@ -100,11 +104,13 @@ app.delete('/delete_weight/:id', function(req, res){
     
         if(!!error){
             console.log('Failed to delete weight');
-            res.send(error);
+            console.log(error);
+            res.send({"status": "fail"});
+
         }else{
             console.log('Weight with ID: ${[req.params.id]} was successfully deleted.');
             console.log(rows);
-            res.send('Weight with ID: ${[req.params.id]} was successfully deleted.');
+            res.send({"status": "success"});
         }
     }); 
 });
